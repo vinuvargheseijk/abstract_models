@@ -168,8 +168,8 @@ def main():
         
     moose.reinit()
     #moose.start(2)
-    for t in range(0,2000,200):
-        moose.start(200)
+    for t in range(0,100,10):
+        #moose.start(10)
         avec=moose.vec('/model/chem/dend/A').n
         plt.plot(avec)
         
