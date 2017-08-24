@@ -5,7 +5,7 @@ import numpy as np
 def plotXML(tree,totTime,trialNum,timeStep):
    plt.ion()
    fig=plt.figure(figsize=(6,6))
-   plt.xlabel('time')
+   plt.xlabel('length of dendrite')
    plt.ylabel('conc of a')
    cCount = 0
    cList = ['blue','green','red', 'black','yellow','cyan']
