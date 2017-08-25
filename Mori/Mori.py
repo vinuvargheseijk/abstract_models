@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 
 params={
         #'diffusionL':1,
-        'diffusionL':1e-06,
+        'diffusionL':1e-07,
         #'diffA':1000,
        'diffA':0, 
        #'diffB':0,
@@ -18,7 +18,7 @@ params={
        #'dendL':100e-06,
        }
        
-numDendSegments=100
+numDendSegments=10
 comptLenBuff=14.4e-06
 comptLen=1e-6
 
@@ -105,8 +105,8 @@ def makeChemProto(name='hydra'):
         #Bdot.expr="0*x0+0.001*x0^2-1*x1+1*x1"
         #Adot.expr="-x0+x1(0.067+(1*x0^2)/(1+x0^2))"
         #Bdot.expr="x0-x1(0.067+(1*x0^2)/(1+x0^2))"
-        Adot.expr="-x0+x1*(0.067+(1*x0^2)/(1+x0^2))+(t<20)*(0.05/2)*(1+cos("+str(np.pi)+"*x3))*x1*x2+(t>20)*(t<25)*(0.05/4)*(cos("+str(np.pi)+"*(t-20)/5))*(1+cos("+str(np.pi)+"*x3))*x1*x2"
-        Bdot.expr="x0-x1*(0.067+(1*x0^2)/(1+x0^2))-(t<20)*(0.05/2)*(1+cos("+str(np.pi)+"*x3))*x1*x2-(t>20)*(t<25)*(0.05/4)*(cos("+str(np.pi)+"*(t-20)/5))*(1+cos("+str(np.pi)+"*x3))*x1*x2"
+        Adot.expr="-x0+x1*(0.067+(1*x0^2)/(1+x0^2))+(t<=20)*(0.05/2)*(1+cos("+str(np.pi)+"*x3))*x1*x2+(t>20)*(t<25)*(0.05/4)*(1+cos("+str(np.pi)+"*(t-20)/5))*(1+cos("+str(np.pi)+"*x3))*x1*x2"
+        Bdot.expr="x0-x1*(0.067+(1*x0^2)/(1+x0^2))-(t<=20)*(0.05/2)*(1+cos("+str(np.pi)+"*x3))*x1*x2-(t>20)*(t<25)*(0.05/4)*(1+cos("+str(np.pi)+"*(t-20)/5))*(1+cos("+str(np.pi)+"*x3))*x1*x2"
         Sdot.expr="0"
         spacedot.expr="0"
         #Cdot.expr="0*x0+0.11*x1-0.11*x2+0.1*x0^2-0.1*(x1+x2)"
@@ -163,11 +163,17 @@ def main():
     space.diffConst = 0
     #moose.element('/model/chem/dend/A').vec[50].nInit=1.2
     #moose.element('/model/chem/dend/B').vec[50].nInit=1.2
-    sourceApply = int(numDendSegments*0.1)
+    totLen = len(moose.vec('/model/chem/dend/A').n)
+    sourceApply = range(int(totLen*0.1)+1)
     xl=0
-    for i in range(sourceApply+1):
-        moose.element('/model/chem/dend/A').vec[i].concInit=0.025
-        moose.element('/model/chem/dend/B').vec[i].concInit=0.025
+    for j in range(totLen): 
+        moose.element('/model/chem/dend/A').vec[j].concInit = 0.268331
+        moose.element('/model/chem/dend/B').vec[j].concInit = 2.0
+    
+    
+    for i in sourceApply:
+        #moose.element('/model/chem/dend/A').vec[i].concInit=0.268331
+        #moose.element('/model/chem/dend/B').vec[i].concInit=2
         moose.element('/model/chem/dend/S').vec[i].concInit=1
         moose.element('/model/chem/dend/space').vec[i].concInit=xl*0.1
         print moose.element('/model/chem/dend/space').vec[i].concInit,xl
@@ -176,7 +182,7 @@ def main():
     
     #randper=np.random.uniform(1,2,savec)
     print 'simulation start'
-    dtSol = 0.1    
+    dtSol = 0.01    
     moose.setClock(16,dtSol)
     moose.setClock(10,dtSol)
     moose.reinit()
@@ -184,7 +190,7 @@ def main():
     #bvec=moose.vec('/model/chem/dend/B').n
     #source=moose.vec('/model/chem/dend/S').n
     storeAvec=[]
-    numSteps = 10
+    numSteps = 2500
     time=0
     t1=20
     t2=25
@@ -204,9 +210,8 @@ def main():
        bvec=moose.vec('/model/chem/dend/B').conc
        source=moose.vec('/model/chem/dend/S').conc
        space=moose.vec('/model/chem/dend/space').conc
-       
-       storeAvec.append(avec)    
        moose.start(dtSol)
+       storeAvec.append(avec)    
        time = time+dtSol
        print time
     
