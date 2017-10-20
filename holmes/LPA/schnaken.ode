@@ -1,0 +1,12 @@
+f(u,v)=a-u+(u^2)*v
+g(u,v)=b-(u^2)*v
+
+ul'=f(ul,vg)
+ug'=f(ug,vg)
+vg'=g(ug,vg)
+
+int ul=0,ug=3,vg=0.1
+
+par a=0.5, b=1
+@xp=t,yp=ul,xlo=0,ylo=0,xhi=100,yhi=6,total=100
+done
